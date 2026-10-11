@@ -1,0 +1,13 @@
+{
+  "name": "visarjan-ghat-watch",
+  "version": "1.0.0",
+  "description": "Pre-visarjan decision support for Bhopal immersion ghats (Team THE MENTALIST, Claude Impact Lab Bhopal 2026, Track 2)",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "build": "node scripts/build-data.js",
+    "test": "node --test",
+    "check:pages": "node scripts/verify-pages.js",
+    "check:browser": "node scripts/browser-check.js"
+  }
+}

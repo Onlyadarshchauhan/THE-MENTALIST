@@ -1,0 +1,26 @@
+{
+  "note": "Whether each ghat is open or authorised for immersion in 2026 has NOT been verified. The NGT has banned immersion in the Upper and Lower Lakes. Fill in a status here only with a cited public source.",
+  "ghats": {
+    "bairagarh-sant-hirdaram-kund": { "status2026": "not_verified", "source": null },
+    "hathaikheda-dam-kund": { "status2026": "not_verified", "source": null },
+    "khatlapura-ghat": { "status2026": "not_verified", "source": null },
+    "malikhedi-kund": { "status2026": "not_verified", "source": null },
+    "prempura-ghat": { "status2026": "not_verified", "source": null },
+    "rani-kamlapati-ghat-kamla-park-kund": { "status2026": "not_verified", "source": null },
+    "shahpura-lake-ghat": { "status2026": "not_verified", "source": null }
+  },
+  "newGhats": [
+    {
+      "id": "new-bmc-ghats",
+      "name": "New BMC immersion ghats",
+      "nameHi": "बीएमसी के नए विसर्जन घाट",
+      "waterBody": "Not known to us",
+      "siteMatch": null,
+      "note": "BMC is reported to be building dedicated immersion ghats after the NGT ban. No MPPCB readings for them exist in the 2023-2025 reports. Their names and locations have not been verified by us.",
+      "source": {
+        "title": "Free Press Journal, 26 Feb 2026 (cited in the organisers' participant guide)",
+        "url": "https://www.freepressjournal.in/amp/bhopal/mp-news-idol-immersion-to-shift-from-lakes-to-safer-sites-ngt-ban-pushes-bmc-to-build-4-dedicated-ghats"
+      }
+    }
+  ]
+}

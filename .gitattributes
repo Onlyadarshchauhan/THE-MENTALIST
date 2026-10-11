@@ -1,0 +1,4 @@
+# Keep source data byte-for-byte as supplied
+*.pdf binary
+*.csv -text
+data/generated/data.js -text

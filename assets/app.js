@@ -131,7 +131,21 @@
     var cell = function (lane) {
       return ranked.filter(function (a) { return a.lane === lane; }).map(gcard).join('');
     };
-    var empty = '<p class="empty">No ghats here.</p>';
+    // Empty lanes get an explanation derived from the current ranking, so it stays true if the data changes.
+    var empty = function (lane) {
+      var why = 'No ghat meets the rule for this lane in the 2023–2025 data.';
+      if (lane === 'verify') {
+        var withGaps = ranked.filter(function (a) { return a.confidence === 'GAPS'; });
+        if (withGaps.length && withGaps.every(function (a) { return a.evidence === 'HIGH'; })) {
+          why = 'This lane is for ghats with weak evidence and gaps in the recent record. Every ghat with recent gaps (' +
+            withGaps.map(function (a) { return a.ghat.name.split(' (')[0].split(' /')[0]; }).join(', ') +
+            ') also has high evidence, so it sits in Act and verify instead.';
+        } else if (!withGaps.length) {
+          why = 'No ranked ghat has gaps in its recent record.';
+        }
+      }
+      return '<div class="empty-state"><span class="es-mark" aria-hidden="true"></span><div><b>No ghats currently in this category</b><p>' + esc(why) + '</p></div></div>';
+    };
     var baseline = assessed.filter(function (a) { return a.lane === 'baseline'; });
 
     app.innerHTML = '<div class="wrap">' +
@@ -154,12 +168,12 @@
       '<div class="board-grid"><section aria-label="Evidence and coverage matrix"><div class="matrix">' +
       '<div class="spacer"></div><div class="axis-x">Coverage adequate<small>Recent record complete</small></div><div class="axis-x">Coverage has gaps<small>Missing table, phase or uncertain site</small></div>' +
       '<div class="axis-y">Evidence high · DO &lt; 4</div>' +
-      '<div class="cell hot"><div class="cell-head">' + laneChip('act') + '<small>Act on the evidence</small></div>' + (cell('act') || empty) + '</div>' +
-      '<div class="cell hot gapcell"><div class="cell-head">' + laneChip('act_verify') + '<small>Act, and request new samples</small></div>' + (cell('act_verify') || empty) + '</div>' +
+      '<div class="cell hot"><div class="cell-head">' + laneChip('act') + '<small>Act on the evidence</small></div>' + (cell('act') || empty('act')) + '</div>' +
+      '<div class="cell hot gapcell"><div class="cell-head">' + laneChip('act_verify') + '<small>Act, and request new samples</small></div>' + (cell('act_verify') || empty('act_verify')) + '</div>' +
       '<div class="axis-y">Evidence medium / low</div>' +
-      '<div class="cell"><div class="cell-head">' + laneChip('watch') + '<small>BOD failures, no severe oxygen loss</small></div>' + (cell('watch') + cell('routine') || empty) + '</div>' +
-      '<div class="cell gapcell"><div class="cell-head">' + laneChip('verify') + '<small>Too little evidence: test first</small></div>' + (cell('verify') || empty) + '</div>' +
-      '<div class="spacer"></div><div class="baseline-row cell gapcell" style="min-height:0"><div class="cell-head">' + laneChip('baseline') + '<small>No readings exist</small></div>' +
+      '<div class="cell"><div class="cell-head">' + laneChip('watch') + '<small>BOD failures, no severe oxygen loss</small></div>' + (cell('watch') + cell('routine') || empty('watch')) + '</div>' +
+      '<div class="cell gapcell' + (cell('verify') ? '' : ' is-empty') + '"><div class="cell-head">' + laneChip('verify') + '<small>Too little evidence: test first</small></div>' + (cell('verify') || empty('verify')) + '</div>' +
+      '<div class="spacer"></div><div class="baseline-row cell gapcell"><div class="cell-head">' + laneChip('baseline') + '<small>No readings exist</small></div>' +
       baseline.map(function (a) {
         var ng = (D.config.newGhats || []).filter(function (n) { return n.id === a.ghat.id; })[0] || {};
         return '<a class="gcard" href="#/ghat/' + a.ghat.id + '"><div class="t"><span class="rank">–</span><span class="nm">' + esc(a.ghat.name) + '</span></div><div class="why">' +

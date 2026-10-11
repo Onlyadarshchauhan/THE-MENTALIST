@@ -122,16 +122,24 @@ main { padding: 26px 0 48px; outline: none; }
 .section-head h2 { font-size: 1.55rem; margin: 0; }
 .section-head p { margin: 0; color: var(--ink-2); max-width: 640px; font-size: .92rem; }
 .board-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(330px, 1fr); gap: 30px; align-items: start; }
-.matrix { display: grid; grid-template-columns: 30px 1fr 1fr; grid-template-rows: auto auto auto auto; gap: 10px; }
+.matrix { display: grid; grid-template-columns: 30px 1fr 1fr; grid-template-rows: auto auto auto auto; gap: 10px; align-items: start; }
+.matrix > .axis-x, .matrix > .axis-y { align-self: stretch; }
 .axis-x { padding: 0 2px 4px; border-bottom: 1px solid var(--char); }
 .axis-x small { text-transform: none; letter-spacing: 0; font-weight: 400; display: block; font-family: var(--sans); font-size: .8rem; color: var(--ink-3); }
 .axis-y { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; border-left: 1px solid var(--char); }
-.cell { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius); padding: 12px; min-height: 140px; }
+.cell { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius); padding: 12px 12px 3px; }
 .cell.hot { border-top: 3px solid var(--critical); }
-.cell.gapcell { background-image: repeating-linear-gradient(135deg, transparent 0 10px, rgba(92, 90, 85, .09) 10px 20px); }
+/* Gap column: a dashed border says 'incomplete record' without filling the area with stripes. */
+.cell.gapcell { border-style: dashed; border-color: rgba(92, 90, 85, .45); }
+.cell.gapcell.hot { border-top-style: solid; border-top-color: var(--critical); }
+.cell.is-empty { background: transparent; }
 .cell-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 10px; flex-wrap: wrap; }
 .cell-head small { font-size: .78rem; }
-.cell .empty { color: var(--ink-3); font-size: .85rem; font-style: italic; font-family: var(--serif); }
+.empty-state { display: flex; gap: 12px; align-items: flex-start; padding: 4px 2px 10px; }
+.empty-state b { display: block; font-family: var(--serif); font-weight: 600; font-size: .98rem; margin-bottom: 3px; }
+.empty-state p { margin: 0; font-size: .82rem; color: var(--ink-2); }
+.es-mark { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 1px dashed var(--gap);
+  background: repeating-linear-gradient(135deg, transparent 0 3px, var(--gap-hatch) 3px 5px); }
 .gcard { display: block; text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--rule); border-radius: var(--radius); padding: 11px 12px; margin-bottom: 9px; transition: border-color .12s, box-shadow .12s; }
 .gcard:hover { border-color: var(--char); box-shadow: 4px 4px 0 var(--lime); }
 .gcard .t { display: flex; gap: 10px; align-items: baseline; }

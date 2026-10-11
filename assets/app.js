@@ -169,9 +169,10 @@
 
       '<aside class="side"><h2>Priority order <small>evidence only</small></h2><ol class="plist">' +
       ranked.map(function (a) {
-        return '<li><span class="rank">' + rankLabel(a) + '</span><div><a href="#/ghat/' + a.ghat.id + '">' + esc(a.ghat.name) + '</a> ' + laneChip(a.lane) +
-          '<div class="meter"><span>DO &lt; 4: <b>' + a.doSevereEvents.length + '/' + a.sampledCount + '</b> events</span>' +
-          '<span>BOD &gt; 3: <b>' + a.bod.above + '/' + a.bod.measured + '</b> readings</span>' +
+        return '<li><span class="rank">' + rankLabel(a) + '</span><div><a href="#/ghat/' + a.ghat.id + '">' + esc(a.ghat.name) + '</a>' +
+          '<div class="meter">' + laneChip(a.lane) +
+          '<span>DO &lt; 4 <b' + (a.doSevereEvents.length ? ' class="crit"' : '') + '>' + a.doSevereEvents.length + '/' + a.sampledCount + '</b> events</span>' +
+          '<span>BOD &gt; 3 <b>' + a.bod.above + '/' + a.bod.measured + '</b></span>' +
           (a.confidence === 'GAPS' ? '<span class="warn-inline">coverage gaps</span>' : '') + '</div></div></li>';
       }).join('') + '</ol>' +
       '<details class="how"><summary>How the ranking works</summary><ol>' +
@@ -211,7 +212,7 @@
     rs.forEach(function (r, i) {
       s += '<text x="' + x(i) + '" y="' + (H - 4) + '" font-size="8" text-anchor="middle" fill="#7A7E78">' + ['pre', 'during', '+1 wk'][i] + '</text>';
       if (vals[i] === null) {
-        s += '<text x="' + x(i) + '" y="' + (y(yMax / 2)) + '" font-size="8" text-anchor="middle" fill="#5B4F86" font-weight="700">NS</text>';
+        s += '<text x="' + x(i) + '" y="' + (y(yMax / 2)) + '" font-size="8" text-anchor="middle" fill="#5C5A55" font-weight="700">NS</text>';
         return;
       }
       var g = R.grade(r, TH);

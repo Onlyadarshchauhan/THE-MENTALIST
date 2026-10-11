@@ -112,6 +112,20 @@
       '<div class="chips">' + extraChips(a) + '</div></a>';
   }
 
+  function spotlight(a) {
+    if (!a) return '';
+    var gaps = a.gaps.map(function (g) {
+      return g.code === 'G1' ? 'No ' + g.festival + ' ' + g.year + ' table' : g.code === 'G2' ? g.festival + ' ' + g.year + ': phases not sampled' : g.code === 'G3' ? 'Site identity uncertain' : '';
+    }).filter(Boolean);
+    return '<aside class="spotlight" aria-label="Top priority ghat">' +
+      '<div class="kicker">Priority ' + rankLabel(a) + ' · ' + esc(B.LANES[a.lane].en) + '</div>' +
+      '<h2>' + esc(a.ghat.name) + '</h2>' +
+      (a.minDo ? '<div class="big">' + esc(a.minDo.value) + '<small>mg/l lowest dissolved oxygen recorded</small></div>' : '') +
+      '<p>' + esc(B.shortReason(a, 'en')) + '</p>' +
+      (gaps.length ? '<div class="chips">' + gaps.map(function (g) { return '<span class="chip">' + esc(g) + '</span>'; }).join('') + '</div>' : '') +
+      '<a class="more" href="#/ghat/' + a.ghat.id + '">Open the case file and source pages →</a></aside>';
+  }
+
   function renderBoard() {
     var ranked = assessed.filter(function (a) { return a.rank !== null; });
     var cell = function (lane) {
@@ -121,26 +135,31 @@
     var baseline = assessed.filter(function (a) { return a.lane === 'baseline'; });
 
     app.innerHTML = '<div class="wrap">' +
-      '<div class="board-head"><div><h1>Where should BMC act first before Durga visarjan?</h1>' +
-      '<p>Seven ghats ranked from ' + stats.rows.toLocaleString('en-IN') + ' MPPCB readings (2023–2025) against CPCB Class B bathing limits. ' +
-      '<b>Priority</b> comes from what was measured. <b>Coverage</b> shows where the record is incomplete and new sampling should be requested. Missing data never counts as clean.</p></div>' +
-      '<a class="cta" href="#/plan">Generate action plan · कार्य योजना →</a></div>' +
+      '<section class="hero"><div>' +
+      '<div class="eyebrow">Pre-visarjan brief · Bhopal · Durga visarjan 20 October 2026</div>' +
+      '<h1>Where should BMC act <em>first</em> before Durga visarjan?</h1>' +
+      '<p class="deck">Seven immersion ghats, ranked from ' + stats.rows.toLocaleString('en-IN') + ' MPPCB readings (2023–2025) against CPCB Class B bathing limits. ' +
+      '<b>Priority</b> comes only from what was measured. <b>Coverage</b> shows where the record is incomplete and new samples should be requested. Missing data never counts as clean.</p>' +
+      '<div class="hero-actions"><a class="cta" href="#/plan">Generate action plan · कार्य योजना</a><a class="cta ghost" href="#/method">How the ranking works</a></div>' +
+      '</div>' + spotlight(ranked[0]) + '</section>' +
 
       '<div class="insights">' +
-      '<button class="insight" data-insight="prebod"><b>' + stats.bodPreAboveB + ' of ' + stats.bodPreMeasured + '</b><span>BOD readings taken <u>before</u> immersion were already above the bathing limit (3 mg/l)</span><em>See every reading →</em></button>' +
-      '<button class="insight" data-insight="do"><b>' + stats.doBelowB + ' of ' + stats.doMeasured + '</b><span>dissolved-oxygen readings below 5 mg/l; ' + stats.doBelowSevere + ' below 4 mg/l</span><em>See every reading →</em></button>' +
-      '<button class="insight" data-insight="zero"><b>' + stats.doZero.length + '×</b><span>zero dissolved oxygen recorded at Bairagarh kund, which has no Durga 2025 table in the report</span><em>Open the source pages →</em></button>' +
+      '<button class="insight" data-insight="prebod"><b>' + stats.bodPreAboveB + ' of ' + stats.bodPreMeasured + '</b><span>BOD readings taken <u>before</u> immersion were already above the bathing limit of 3 mg/l. The problem starts before the festival.</span><em>See every reading</em></button>' +
+      '<button class="insight" data-insight="do"><b>' + stats.doBelowB + ' of ' + stats.doMeasured + '</b><span>dissolved-oxygen readings below the 5 mg/l bathing minimum; ' + stats.doBelowSevere + ' below 4 mg/l.</span><em>See every reading</em></button>' +
+      '<button class="insight" data-insight="zero"><b>' + stats.doZero.length + '× zero</b><span>dissolved oxygen recorded as 0 mg/l, all at Bairagarh kund.</span><em>Open the source pages</em></button>' +
       '</div>' +
 
+      '<div class="section-head"><h2>Priority board</h2><p>Rows: strength of measured evidence. Columns: completeness of the recent record. The column changes the suggested action, never the rank.</p></div>' +
+
       '<div class="board-grid"><section aria-label="Evidence and coverage matrix"><div class="matrix">' +
-      '<div></div><div class="axis-x">Coverage adequate<small>Recent record complete</small></div><div class="axis-x">Coverage has gaps<small>Missing table, phase or uncertain site</small></div>' +
+      '<div class="spacer"></div><div class="axis-x">Coverage adequate<small>Recent record complete</small></div><div class="axis-x">Coverage has gaps<small>Missing table, phase or uncertain site</small></div>' +
       '<div class="axis-y">Evidence high · DO &lt; 4</div>' +
       '<div class="cell hot"><div class="cell-head">' + laneChip('act') + '<small>Act on the evidence</small></div>' + (cell('act') || empty) + '</div>' +
       '<div class="cell hot gapcell"><div class="cell-head">' + laneChip('act_verify') + '<small>Act, and request new samples</small></div>' + (cell('act_verify') || empty) + '</div>' +
       '<div class="axis-y">Evidence medium / low</div>' +
       '<div class="cell"><div class="cell-head">' + laneChip('watch') + '<small>BOD failures, no severe oxygen loss</small></div>' + (cell('watch') + cell('routine') || empty) + '</div>' +
       '<div class="cell gapcell"><div class="cell-head">' + laneChip('verify') + '<small>Too little evidence: test first</small></div>' + (cell('verify') || empty) + '</div>' +
-      '<div></div><div class="baseline-row cell gapcell" style="min-height:0"><div class="cell-head">' + laneChip('baseline') + '<small>No readings exist</small></div>' +
+      '<div class="spacer"></div><div class="baseline-row cell gapcell" style="min-height:0"><div class="cell-head">' + laneChip('baseline') + '<small>No readings exist</small></div>' +
       baseline.map(function (a) {
         var ng = (D.config.newGhats || []).filter(function (n) { return n.id === a.ghat.id; })[0] || {};
         return '<a class="gcard" href="#/ghat/' + a.ghat.id + '"><div class="t"><span class="rank">–</span><span class="nm">' + esc(a.ghat.name) + '</span></div><div class="why">' +
@@ -148,7 +167,7 @@
       }).join('') + '</div>' +
       '</div></section>' +
 
-      '<aside class="side"><h2>Priority order</h2><ol class="plist">' +
+      '<aside class="side"><h2>Priority order <small>evidence only</small></h2><ol class="plist">' +
       ranked.map(function (a) {
         return '<li><span class="rank">' + rankLabel(a) + '</span><div><a href="#/ghat/' + a.ghat.id + '">' + esc(a.ghat.name) + '</a> ' + laneChip(a.lane) +
           '<div class="meter"><span>DO &lt; 4: <b>' + a.doSevereEvents.length + '/' + a.sampledCount + '</b> events</span>' +
@@ -162,7 +181,7 @@
       '<li><b>Coverage gaps</b> (no 2025 table, unsampled 2025 phases, uncertain site) change the suggested action, never the order.</li>' +
       '<li>BOD exceeds the limit at almost every ghat, so it cannot separate them. It is shown for every ghat but does not set the order.</li>' +
       '</ol><p><a href="#/method">Full method and limits →</a></p></details>' +
-      '<p class="muted" style="font-size:.8rem;margin-top:10px">An algorithmic priority for planning, built by Team THE MENTALIST. It is not an official MPPCB or BMC risk classification.</p>' +
+      '<p class="disclaim">An algorithmic priority for planning, built by Team THE MENTALIST. It is not an official MPPCB or BMC risk classification.</p>' +
       '</aside></div></div>';
 
     app.querySelectorAll('[data-insight]').forEach(function (b) {
@@ -180,23 +199,23 @@
     var x = function (i) { return padL + i * (W - padL - padR) / 2; };
     var y = function (v) { return padT + (1 - v / yMax) * (H - padT - padB); };
     var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(short(param) + ' ' + e.key) + '">';
-    s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="#c9d1d6"/>';
-    var lines = isDo ? [[TH.classB['Dissolved oxygen'].min, '#a4161a', '5'], [TH.doSevere, '#7a0d10', '4']] : [[TH.classB.BOD.max, '#a4161a', '3']];
+    s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="rgba(23,26,24,.25)"/>';
+    var lines = isDo ? [[TH.classB['Dissolved oxygen'].min, '#C2410C', '5'], [TH.doSevere, '#B42318', '4']] : [[TH.classB.BOD.max, '#C2410C', '3']];
     lines.forEach(function (l) {
       s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(l[0]) + '" y2="' + y(l[0]) + '" stroke="' + l[1] + '" stroke-dasharray="' + (l[2] === '4' ? '2 2' : '5 3') + '" stroke-width="1"/>' +
         '<text x="' + (padL - 4) + '" y="' + (y(l[0]) + (l[2] === '4' ? 7 : 1)) + '" font-size="8" text-anchor="end" fill="' + l[1] + '">' + l[2] + '</text>';
     });
     for (var i = 0; i < 2; i++) {
-      if (vals[i] !== null && vals[i + 1] !== null) s += '<line x1="' + x(i) + '" y1="' + y(vals[i]) + '" x2="' + x(i + 1) + '" y2="' + y(vals[i + 1]) + '" stroke="#0f4c5c" stroke-width="2"/>';
+      if (vals[i] !== null && vals[i + 1] !== null) s += '<line x1="' + x(i) + '" y1="' + y(vals[i]) + '" x2="' + x(i + 1) + '" y2="' + y(vals[i + 1]) + '" stroke="#171A18" stroke-width="1.6"/>';
     }
     rs.forEach(function (r, i) {
-      s += '<text x="' + x(i) + '" y="' + (H - 4) + '" font-size="8" text-anchor="middle" fill="#6b7882">' + ['pre', 'during', '+1 wk'][i] + '</text>';
+      s += '<text x="' + x(i) + '" y="' + (H - 4) + '" font-size="8" text-anchor="middle" fill="#7A7E78">' + ['pre', 'during', '+1 wk'][i] + '</text>';
       if (vals[i] === null) {
-        s += '<text x="' + x(i) + '" y="' + (y(yMax / 2)) + '" font-size="8" text-anchor="middle" fill="#5b4b8a" font-weight="700">NS</text>';
+        s += '<text x="' + x(i) + '" y="' + (y(yMax / 2)) + '" font-size="8" text-anchor="middle" fill="#5B4F86" font-weight="700">NS</text>';
         return;
       }
       var g = R.grade(r, TH);
-      var col = R.isFail(g) ? (g.sev >= 2 ? '#7a0d10' : '#a4161a') : '#2f6b3f';
+      var col = R.isFail(g) ? (g.sev >= 2 ? '#B42318' : '#C2410C') : '#4D6B2F';
       s += '<circle cx="' + x(i) + '" cy="' + y(vals[i]) + '" r="3.6" fill="' + col + '"><title>' + esc(short(param) + ' ' + vals[i] + ' (' + B.PHASE[r.phase].en + ')') + '</title></circle>' +
         '<text x="' + x(i) + '" y="' + (y(vals[i]) - 6) + '" font-size="8.5" text-anchor="middle" fill="' + col + '" font-weight="700">' + vals[i] + '</text>';
     });
@@ -277,10 +296,10 @@
 
     var html = '<div class="wrap"><div class="crumbs"><a href="#/">← Action board</a></div>' +
       '<div class="case-head"><div class="bigrank">' + rankLabel(a) + '<small>' + (a.rank === null ? 'not ranked' : a.joint ? 'joint priority' : 'priority') + '</small></div>' +
-      '<div style="flex:1;min-width:260px"><h1>' + esc(a.ghat.name) + ' <span lang="hi" class="muted" style="font-size:1rem">' + esc(B.NAMES_HI[a.ghat.name] || '') + '</span></h1>' +
-      '<div class="muted">' + esc(a.ghat.waterBody || '') + (a.sampledCount ? ' · ' + a.sampledCount + ' of ' + a.eventCount + ' festival events sampled, 2023–2025' : '') + '</div>' +
+      '<div><div class="eyebrow">Ghat case file · ' + esc(B.LANES[a.lane].en) + '</div><h1>' + esc(a.ghat.name) + '<span lang="hi" class="hi">' + esc(B.NAMES_HI[a.ghat.name] || '') + '</span></h1>' +
+      '<div class="meta">' + esc(a.ghat.waterBody || '') + (a.sampledCount ? ' · ' + a.sampledCount + ' of ' + a.eventCount + ' festival events sampled, 2023–2025' : '') + '</div>' +
       '<div class="chips">' + laneChip(a.lane) + evChip(a) + confChip(a) + extraChips(a) + '</div></div>' +
-      '<a class="cta" href="#/plan">Action plan →</a></div>';
+      '<a class="cta" href="#/plan">Action plan</a></div>';
 
     html += '<div class="two"><section class="panel"><h2>Why this priority</h2>' +
       reasons.map(function (r) {
@@ -290,7 +309,7 @@
       }).join('') +
       (ng ? '<p>' + esc(ng.note) + '</p><p><a href="' + esc(ng.source.url) + '" target="_blank" rel="noopener">' + esc(ng.source.title) + ' ↗</a></p>' : '') +
       '</section><div>' +
-      '<section class="panel"><h2>Suggested actions <span class="tag-s">decision support</span></h2><ul class="actions">' +
+      '<section class="panel dark"><h2>Suggested actions <span class="tag-s">decision support</span></h2><ul class="actions">' +
       acts.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
       '<p class="muted" style="font-size:.8rem;margin:8px 0 0">Suggestions for the officer\'s judgment, subject to the site\'s 2026 status.</p></section>' +
       '<section class="panel"><h2>Gaps &amp; uncertainty</h2><ul class="gaplist">' + gapItems.join('') + '</ul></section>' +
@@ -303,7 +322,7 @@
           '</table><p class="muted" style="margin-top:6px">Ganesh and Durga tables use different names. They may be two places, so treat the comparison across festivals with caution.</p></section>';
       }
       html += '<section class="panel"><h2>Dissolved oxygen by event <small class="muted">before → during → one week after</small></h2>' + strips(a, 'Dissolved oxygen') +
-        '<div class="legend"><span><i style="border-color:#a4161a"></i>5 mg/l Class B minimum</span><span><i style="border-color:#7a0d10;border-top-style:dotted"></i>4 mg/l Class C/D minimum</span><span>NS = not sampled</span></div></section>';
+        '<div class="legend"><span><i style="border-color:#C2410C"></i>5 mg/l Class B minimum</span><span><i style="border-color:#B42318;border-top-style:dotted"></i>4 mg/l Class C/D minimum</span><span>NS = not sampled</span></div></section>';
       html += '<section class="panel"><h2>BOD by event <small class="muted">limit 3 mg/l or less</small></h2>' + strips(a, 'BOD') + '</section>';
       html += '<section class="panel"><h2>All readings</h2><div class="filters">' +
         sel('year', 'Year', ['all'].concat(ds.years.slice().reverse())) +
@@ -341,9 +360,10 @@
   function planDoc(plan) {
     var hi = plan.lang === 'hi';
     return '<article class="doc" lang="' + plan.lang + '">' +
+      '<div class="masthead"><span><span class="mark">Visarjan Ghat Watch</span> ' + (hi ? 'निर्णय-सहायता' : 'Decision support') + '</span><span>' + (hi ? 'ऐतिहासिक आँकड़े 2023–2025' : 'Historical data 2023–2025') + '</span></div>' +
       '<h1>' + esc(plan.title) + '</h1><p class="sub">' + esc(plan.subtitle) + '</p>' +
       '<div class="disc">' + esc(plan.limits[0]) + ' ' + esc(plan.limits[6]) + '</div>' +
-      '<p><b>' + esc(plan.headline) + '</b></p><p class="muted">' + esc(plan.method) + '</p>' +
+      '<p class="headline">' + esc(plan.headline) + '</p><p class="muted">' + esc(plan.method) + '</p>' +
       '<table><tr>' + plan.columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr>' +
       plan.rows.map(function (r) {
         return '<tr><td class="rk">' + esc(r.rank) + '</td><td><b>' + esc(r.name) + '</b>' + (r.identityWarning ? '<br><span class="warn-inline">⚠ ' + (hi ? 'स्थल-पहचान अनिश्चित' : 'site identity uncertain') + '</span>' : '') +

@@ -74,6 +74,20 @@ async function main() {
   await send('Page.navigate', { url: base + '#/plan' }); await sleep(600);
   const docs = await evalJs('document.querySelector("[data-lang=hi]").click(); [document.querySelectorAll(".doc").length, document.querySelector(".doc").getAttribute("lang")]');
 
+  // Responsive pass: tablet and phone widths, flag horizontal page overflow.
+  const responsive = [];
+  for (const w of [1024, 390]) {
+    await send('Emulation.setDeviceMetricsOverride', { width: w, height: 860, deviceScaleFactor: 1, mobile: w < 600 });
+    for (const [name, hash] of [['board', '#/'], ['ghat-bairagarh', '#/ghat/bairagarh-sant-hirdaram-kund'], ['plan', '#/plan']]) {
+      await send('Page.navigate', { url: base + hash }); await sleep(700);
+      const over = await evalJs('document.documentElement.scrollWidth - window.innerWidth');
+      const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: await fullClip(w) });
+      fs.writeFileSync(path.join(OUT, name + '-' + w + '.png'), Buffer.from(shot.result.data, 'base64'));
+      responsive.push(w + 'px ' + name + ': horizontal overflow ' + over + 'px');
+    }
+  }
+  await send('Emulation.clearDeviceMetricsOverride');
+
   ws.close(); proc.kill();
 
   // Every PDF link must point to an existing report and an in-range page.
@@ -87,13 +101,15 @@ async function main() {
   console.log('insight modal rows: ' + modalRows + ' · Durga filter header cells: ' + filtered + ' · plan docs after Hindi toggle: ' + JSON.stringify(docs));
   console.log('distinct PDF links: ' + links.size + ', broken: ' + bad.length + (bad.length ? ' ' + bad.join(' ') : ''));
   console.log('JavaScript errors: ' + errors.length + (errors.length ? '\n  ' + errors.join('\n  ') : ''));
+  console.log(responsive.join('\n'));
   console.log('screenshots: ' + OUT);
-  if (errors.length || bad.length || modalRows !== 37 || docs[0] !== 1 || docs[1] !== 'hi') process.exit(1);
+  const overflow = responsive.filter((l) => !/overflow (0|-\d+)px$/.test(l));
+  if (errors.length || bad.length || overflow.length || modalRows !== 37 || docs[0] !== 1 || docs[1] !== 'hi') process.exit(1);
 
-  async function fullClip() {
+  async function fullClip(width = 1366) {
     const m = await send('Page.getLayoutMetrics');
     const c = m.result.cssContentSize || m.result.contentSize;
-    return { x: 0, y: 0, width: 1366, height: Math.min(Math.ceil(c.height), 6000), scale: 1 };
+    return { x: 0, y: 0, width, height: Math.min(Math.ceil(c.height), 6000), scale: 1 };
   }
 }
 

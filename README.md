@@ -53,7 +53,8 @@ Optional, for developers (needs Node.js 18 or later; no packages):
 - **Bilingual action plan:** printable, with copy-to-clipboard short text in English and Hindi. It includes sampling requests, caveats and a 2026-status warning.
 - **Tests and checks:**
   - 32 automated tests: headline statistics, flags, missing events, ranking, monotonicity, source pages, plan caveats and the claim checker.
-  - A headless browser check of every screen: 0 JavaScript errors, 0 broken PDF links.
+  - A headless browser check of every screen: 0 JavaScript errors, 0 broken PDF links, and no horizontal overflow at 1366, 1024 and 390 px widths.
+  - Print to PDF: the English plan prints on its own pages, and the Hindi plan starts on a new page.
 
 **Does not work yet / limitations:**
 - **PDF page jump:** `#page=N` relies on the browser's built-in PDF viewer (Chrome and Edge support it). Automated checks confirm the link targets and page contents but cannot drive the PDF viewer itself. Other viewers may open page 1; the page number is always shown on the link.
